@@ -56,7 +56,7 @@ config :phoenix, :serve_endpoints, true
 #     config :discuss, Discuss.Endpoint, server: true
 #
 
-config :phoenix_distillery, PhoenixDistillery.Endpoint,
+config :discuss, Discuss.Endpoint,
   http: [port: 8888],
   url: [host: "localhost", port: 80], # This is critical for ensuring web-sockets properly authorize.
   cache_static_manifest: "priv/static/manifest.json",
