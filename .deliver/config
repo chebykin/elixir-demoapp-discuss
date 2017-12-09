@@ -1,4 +1,4 @@
-APP="discussapp"
+APP="discuss"
 
 BUILD_HOST="46.101.199.190"
 BUILD_USER="builder"
