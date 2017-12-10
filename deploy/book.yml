@@ -1,0 +1,81 @@
+- hosts: webservers
+  remote_user: root
+  gather_facts: no
+  vars:
+    password: $1lYd9VkkKOmE
+
+  pre_tasks:
+    - name: 'install python2'
+      raw: sudo apt-get -y install python-simplejson
+
+  tasks:
+    - user: name=web password={{password}} shell=/bin/bash
+
+    - name: Create .ssh folder for web user
+      file:
+        path: /home/web/.ssh
+        state: directory
+        owner: web
+        group: web
+
+    - name: Copy authorized keys from root user to web
+      command: cp /root/.ssh/authorized_keys /home/web/.ssh/authorized_keys
+
+    - name: Change authorized keys permissions
+      file:
+        path: /home/web/.ssh/authorized_keys
+        owner: web
+        group: web
+
+    - name: Install erlang solutions
+      apt:
+        deb: https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+
+    - name: Install esl-erlang
+      apt:
+        name: esl-erlang
+        update_cache: yes
+
+    - name: Install elixir
+      apt:
+        name: elixir
+
+- hosts: webservers
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+  - name: ensure apt cache is up to date
+    apt: update_cache=yes
+  - name: ensure packages are installed
+    apt: name={{item}}
+    with_items:
+        - postgresql
+        - libpq-dev
+        - python-psycopg2
+
+- hosts: webservers
+  remote_user: root
+  become: yes
+  become_method: su
+  become_user: postgres
+  gather_facts: no
+
+  vars:
+    dbname: discuss_prod
+    dbuser: phoenix
+    dbpassword: phoenix
+
+  tasks:
+  - name: ensure database is created
+    postgresql_db: name={{dbname}}
+
+  - name: ensure user has access to database
+    postgresql_user: db={{dbname}} name={{dbuser}} password={{dbpassword}} priv=ALL
+
+  - name: ensure user does not have unnecessary privilege
+    postgresql_user: name={{dbuser}} role_attr_flags=NOSUPERUSER,NOCREATEDB
+
+  - name: ensure no other user can access the database
+    postgresql_privs: db={{dbname}} role=PUBLIC type=database priv=ALL state=absent
+

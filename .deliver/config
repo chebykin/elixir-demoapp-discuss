@@ -1,6 +1,6 @@
 APP="discuss"
 
-BUILD_HOST="46.101.199.190"
+BUILD_HOST="builder.chebyk.in"
 BUILD_USER="builder"
 BUILD_AT="/tmp/edeliver/myapp/builds"
 
